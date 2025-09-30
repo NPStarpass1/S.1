@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MakroMart - ร้านค้าออนไลน์</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Kanit', sans-serif;
+        }
+        .cart-badge {
+            animation: bounce 0.3s ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold">🛒 MakroMart</h1>
+                    <span class="text-blue-200">ร้านค้าออนไลน์</span>
+                </div>
+                <button onclick="toggleCart()" class="relative bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition-colors duration-200">
+                    <span class="flex items-center space-x-2">
+                        <span>🛍️</span>
+                        <span>ตะกร้า</span>
+                        <span id="cartCount" class="bg-red-500 text-white rounded-full px-2 py-1 text-sm font-bold">0</span>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-6">
+        <div class="grid lg:grid-cols-4 gap-6">
+            <!-- Products Section -->
+            <div class="lg:col-span-3">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">สินค้าแนะนำ</h2>
+                
+                <!-- Product Categories -->
+                <div class="mb-6">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <button onclick="filterProducts('all')" class="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-xl transition-colors duration-200 flex flex-col items-center space-y-2">
+                            <span class="text-2xl">🛒</span>
+                            <span class="text-sm font-medium">ทั้งหมด</span>
+                        </button>
+                        <button onclick="filterProducts('food')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-4 rounded-xl transition-colors duration-200 flex flex-col items-center space-y-2">
+                            <span class="text-2xl">🍽️</span>
+                            <span class="text-sm font-medium">อาหาร</span>
+                        </button>
+                        <button onclick="filterProducts('drink')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-4 rounded-xl transition-colors duration-200 flex flex-col items-center space-y-2">
+                            <span class="text-2xl">🥤</span>
+                            <span class="text-sm font-medium">เครื่องดื่ม</span>
+                        </button>
+                        <button onclick="filterProducts('household')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-4 rounded-xl transition-colors duration-200 flex flex-col items-center space-y-2">
+                            <span class="text-2xl">🏠</span>
+                            <span class="text-sm font-medium">ของใช้ในบ้าน</span>
+                        </button>
+                        <button onclick="filterProducts('frozen')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-4 rounded-xl transition-colors duration-200 flex flex-col items-center space-y-2">
+                            <span class="text-2xl">🧊</span>
+                            <span class="text-sm font-medium">อาหารแช่แข็ง</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div id="productsGrid" class="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- Products will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Cart Sidebar -->
+            <div class="lg:col-span-1">
+                <div id="cartSidebar" class="bg-white rounded-xl shadow-lg p-6 sticky top-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        🛍️ ตะกร้าสินค้า
+                    </h3>
+                    <div id="cartItems" class="space-y-3 mb-4">
+                        <p class="text-gray-500 text-center py-8">ไม่มีสินค้าในตะกร้า</p>
+                    </div>
+                    <div class="border-t pt-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="font-semibold">รวมทั้งหมด:</span>
+                            <span id="totalPrice" class="text-xl font-bold text-blue-600">฿0</span>
+                        </div>
+                        <button id="checkoutBtn" onclick="showCheckout()" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-lg transition-colors duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
+                            ดำเนินการชำระเงิน
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-screen overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">ชำระเงิน</h2>
+                    <button onclick="closeCheckout()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">สรุปคำสั่งซื้อ</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div id="checkoutItems" class="space-y-2 mb-3">
+                            <!-- Checkout items will be populated -->
+                        </div>
+                        <div class="border-t pt-3 flex justify-between font-bold text-lg">
+                            <span>ยอดรวมทั้งหมด:</span>
+                            <span id="checkoutTotal" class="text-blue-600">฿0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer Information -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">ข้อมูลลูกค้า</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <input type="text" id="customerName" placeholder="ชื่อ-นามสกุล" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <input type="tel" id="customerPhone" placeholder="เบอร์โทรศัพท์" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <textarea id="customerAddress" placeholder="ที่อยู่จัดส่ง" rows="3" class="w-full mt-4 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">วิธีการชำระเงิน</h3>
+                    <div class="space-y-3">
+                        <label class="flex items-center space-x-3 p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                            <input type="radio" name="paymentMethod" value="cod" class="text-blue-600 focus:ring-blue-500">
+                            <div class="flex-1">
+                                <div class="font-medium">💵 เก็บเงินปลายทาง (COD)</div>
+                                <div class="text-sm text-gray-600">ชำระเงินเมื่อได้รับสินค้า</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center space-x-3 p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                            <input type="radio" name="paymentMethod" value="transfer" class="text-blue-600 focus:ring-blue-500">
+                            <div class="flex-1">
+                                <div class="font-medium">🏦 โอนเงินผ่านธนาคาร</div>
+                                <div class="text-sm text-gray-600">โอนเงินล่วงหน้าก่อนจัดส่ง</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Bank Transfer Details (Hidden by default) -->
+                <div id="bankDetails" class="mb-6 hidden">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-blue-800 mb-2">ข้อมูลการโอนเงิน</h4>
+                        <div class="text-sm text-blue-700 space-y-1">
+                            <p><strong>ธนาคาร:</strong> กสิกรไทย</p>
+                            <p><strong>เลขที่บัญชี:</strong> 123-4-56789-0</p>
+                            <p><strong>ชื่อบัญชี:</strong> บริษัท มาโครมาร์ท จำกัด</p>
+                            <p class="text-red-600 font-medium mt-2">* กรุณาโอนเงินภายใน 24 ชั่วโมง</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button onclick="submitOrder()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-lg transition-colors duration-200">
+                    ยืนยันคำสั่งซื้อ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 text-center">
+            <div class="text-6xl mb-4">✅</div>
+            <h2 class="text-2xl font-bold text-green-600 mb-2">สั่งซื้อสำเร็จ!</h2>
+            <p class="text-gray-600 mb-4">เราได้รับคำสั่งซื้อของคุณแล้ว</p>
+            <p class="text-sm text-gray-500 mb-6">หมายเลขคำสั่งซื้อ: <span id="orderNumber" class="font-mono font-bold"></span></p>
+            <button onclick="closeSuccess()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors duration-200">
+                ตกลง
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Sample products data
+        const products = [
+            { id: 1, name: 'ข้าวหอมมะลิ 5 กก.', price: 189, image: '🌾', category: 'food', description: 'ข้าวหอมมะลิแท้ 100%' },
+            { id: 2, name: 'น้ำดื่ม 1.5 ลิตร (แพ็ค 6)', price: 45, image: '💧', category: 'drink', description: 'น้ำดื่มบริสุทธิ์' },
+            { id: 3, name: 'ผงซักฟอก 3 กก.', price: 159, image: '🧽', category: 'household', description: 'ผงซักฟอกขาวสะอาด' },
+            { id: 4, name: 'ไข่ไก่สด (แผง 30 ฟอง)', price: 120, image: '🥚', category: 'food', description: 'ไข่ไก่สดใหม่ทุกวัน' },
+            { id: 5, name: 'นมสดพาสเจอร์ไรส์ 1 ลิตร', price: 28, image: '🥛', category: 'drink', description: 'นมสดรสชาติหวานมัน' },
+            { id: 6, name: 'กระดาษทิชชู่ (แพ็ค 12 ม้วน)', price: 89, image: '🧻', category: 'household', description: 'กระดาษทิชชู่นุ่มพิเศษ' },
+            { id: 7, name: 'เนื้อหมูสับ 500 กรัม', price: 85, image: '🥩', category: 'food', description: 'เนื้อหมูสับสดใหม่' },
+            { id: 8, name: 'น้ำส้มคั้นสด 1 ลิตร', price: 35, image: '🍊', category: 'drink', description: 'น้ำส้มคั้นสด 100%' },
+            { id: 9, name: 'น้ำยาล้างจาน 600 มล.', price: 25, image: '🧴', category: 'household', description: 'น้ำยาล้างจานขจัดคราบมัน' }
+        ];
+
+        // สร้างสินค้าในแต่ละหมวด
+        const frozenProducts = [
+            { id: 10, name: "ผัดกะเพราแช่แข็ง", image: "https://media.allonline.7eleven.co.th/pdmain/409873_00_Frozen-Food_Supermarket.jpg", price: 120, category: 'frozen', description: 'ผัดกะเพราพร้อมทาน' },
+            { id: 11, name: "พิซซ่าแช่แข็ง", image: "https://cm.lnwfile.com/_/cm/_raw/9r/5o/li.jpg", price: 150, category: 'frozen', description: 'พิซซ่าหน้าชีสเข้มข้น' },
+            { id: 12, name: "ซาลาเปาแช่แข็ง", image: "https://www.tubleebao.com/wp-content/uploads/2017/10/tublee_bao_bigbox.jpg", price: 60, category: 'frozen', description: 'ซาลาเปาไส้หมูหวาน' },
+            { id: 13, name: "ไก่ทอดแช่แข็ง", image: "https://thainipponfoods.com/wp-content/uploads/2022/04/Boneless-chicken-stick-pic-1-re.jpg", price: 180, category: 'frozen', description: 'ไก่ทอดกรอบนอกนุ่มใน' },
+            { id: 14, name: "ข้าวผัดแช่แข็ง", image: "https://images.mango-prod.siammakro.cloud/product-images/.-45a3d448-822d-4c6f-a342-913f0d7bdefa.jpeg", price: 50, category: 'frozen', description: 'ข้าวผัดรสชาติเข้มข้น' },
+            { id: 15, name: "ผักรวมแช่แข็ง", image: "https://st.bigc-cs.com/cdn-cgi/image/format=webp,quality=90/public/media/catalog/product/32/20/.--.jpg", price: 70, category: 'frozen', description: 'ผักรวมสดใหม่แช่แข็ง' },
+            { id: 16, name: "ลูกชิ้นแช่แข็ง", image: "https://storage.googleapis.com/cmpd-prod-bucket-app/images/product/20250116_122948_4:3_894-8946258_price-.png", price: 90, category: 'frozen', description: 'ลูกชิ้นเนื้อแท้' },
+            { id: 17, name: "ปลาทอดแช่แข็ง", image: "https://images.mango-prod.siammakro.cloud/product-images/.-55ffc89e-a356-487b-9c39-44bd1a44d03f.jpeg", price: 150, category: 'frozen', description: 'ปลาทอดกรอบหอม' },
+            { id: 18, name: "แฮมเบอร์เกอร์แช่แข็ง", image: "https://www.yokintertrade.co.th/shopping/system/resource/file/kdseq_product_19525.jpg?date=132855.1", price: 160, category: 'frozen', description: 'แฮมเบอร์เกอร์เนื้อชั้นดี' },
+            { id: 19, name: "ขนมปังบันแช่แข็ง", image: "https://halalthai.or.th/storages/products/715247.jpg", price: 40, category: 'frozen', description: 'ขนมปังบันนุ่มหวาน' },
+            { id: 20, name: "บัวลอยแช่แข็ง", image: "https://images.mango-prod.siammakro.cloud/product-images/.-eb3b921c-d886-44ad-b0fb-bcc174ce711f.jpeg", price: 80, category: 'frozen', description: 'บัวลอยเผือกหวานมัน' },
+            { id: 21, name: "เฟรนช์ฟรายส์แช่แข็ง", image: "https://images.mango-prod.siammakro.cloud/product-images/.-0a2d3b9e-7826-4f88-b0a0-de853d981973.jpeg", price: 70, category: 'frozen', description: 'เฟรนช์ฟรายส์กรอบอร่อย' },
+            { id: 22, name: "พิซซ่ามินิแช่แข็ง", image: "https://storage.googleapis.com/cmpd-prod-bucket-app/images/product/20250905_180135_4:3_3D_CP_Kurobuta_Pork_Sausage_Spicy_500g_040925_0%20(1).png", price: 90, category: 'frozen', description: 'พิซซ่ามินิหน้าหมู' }
+        ];
+
+        // รวมสินค้าทั้งหมด
+        const allProducts = [...products, ...frozenProducts];
+
+        let cart = [];
+        let currentFilter = 'all';
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const filteredProducts = currentFilter === 'all' ? allProducts : allProducts.filter(p => p.category === currentFilter);
+            
+            grid.innerHTML = filteredProducts.map(product => `
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                    <div class="p-6">
+                        ${product.image.startsWith('http') ? 
+                            `<img src="${product.image}" alt="${product.name}" class="w-full h-40 object-cover rounded-lg mb-4" onerror="this.src=''; this.alt='รูปภาพไม่สามารถโหลดได้'; this.style.display='none'; this.nextElementSibling.style.display='block';">
+                             <div class="text-6xl text-center mb-4 hidden">🍽️</div>` :
+                            `<div class="text-6xl text-center mb-4">${product.image}</div>`
+                        }
+                        <h3 class="font-semibold text-lg text-gray-800 mb-2">${product.name}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${product.description}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-2xl font-bold text-blue-600">฿${product.price}</span>
+                            <button onclick="addToCart(${product.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2">
+                                <span>🛒</span>
+                                <span>เพิ่ม</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterProducts(category) {
+            currentFilter = category;
+            renderProducts();
+            
+            // Update button styles
+            document.querySelectorAll('button[onclick^="filterProducts"]').forEach(btn => {
+                btn.className = 'bg-gray-200 hover:bg-gray-300 text-gray-700 p-4 rounded-xl transition-colors duration-200 flex flex-col items-center space-y-2';
+            });
+            event.target.className = 'bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-xl transition-colors duration-200 flex flex-col items-center space-y-2';
+        }
+
+        function addToCart(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+            
+            updateCartDisplay();
+            
+            // Add bounce animation to cart button
+            const cartCount = document.getElementById('cartCount');
+            cartCount.classList.add('cart-badge');
+            setTimeout(() => cartCount.classList.remove('cart-badge'), 300);
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartDisplay();
+        }
+
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    updateCartDisplay();
+                }
+            }
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const cartCount = document.getElementById('cartCount');
+            const totalPrice = document.getElementById('totalPrice');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            cartCount.textContent = totalItems;
+            totalPrice.textContent = `฿${total.toLocaleString()}`;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-gray-500 text-center py-8">ไม่มีสินค้าในตะกร้า</p>';
+                checkoutBtn.disabled = true;
+            } else {
+                cartItems.innerHTML = cart.map(item => `
+                    <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        ${item.image.startsWith('http') ? 
+                            `<img src="${item.image}" alt="${item.name}" class="w-12 h-12 object-cover rounded-lg" onerror="this.src=''; this.style.display='none'; this.nextElementSibling.style.display='block';">
+                             <span class="text-2xl hidden">🍽️</span>` :
+                            `<span class="text-2xl">${item.image}</span>`
+                        }
+                        <div class="flex-1">
+                            <div class="font-medium text-sm">${item.name}</div>
+                            <div class="text-blue-600 font-semibold">฿${item.price}</div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="updateQuantity(${item.id}, -1)" class="bg-red-500 hover:bg-red-600 text-white w-6 h-6 rounded-full text-sm">-</button>
+                            <span class="font-semibold">${item.quantity}</span>
+                            <button onclick="updateQuantity(${item.id}, 1)" class="bg-green-500 hover:bg-green-600 text-white w-6 h-6 rounded-full text-sm">+</button>
+                        </div>
+                        <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700">🗑️</button>
+                    </div>
+                `).join('');
+                checkoutBtn.disabled = false;
+            }
+        }
+
+        function toggleCart() {
+            // This function can be used to show/hide cart on mobile
+            const sidebar = document.getElementById('cartSidebar');
+            sidebar.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showCheckout() {
+            if (cart.length === 0) return;
+            
+            const modal = document.getElementById('checkoutModal');
+            const checkoutItems = document.getElementById('checkoutItems');
+            const checkoutTotal = document.getElementById('checkoutTotal');
+            
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            checkoutItems.innerHTML = cart.map(item => `
+                <div class="flex justify-between items-center">
+                    <span>${item.name} x${item.quantity}</span>
+                    <span>฿${(item.price * item.quantity).toLocaleString()}</span>
+                </div>
+            `).join('');
+            
+            checkoutTotal.textContent = `฿${total.toLocaleString()}`;
+            modal.classList.remove('hidden');
+            
+            // Add payment method change listener
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const bankDetails = document.getElementById('bankDetails');
+                    if (this.value === 'transfer') {
+                        bankDetails.classList.remove('hidden');
+                    } else {
+                        bankDetails.classList.add('hidden');
+                    }
+                });
+            });
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        function submitOrder() {
+            const name = document.getElementById('customerName').value;
+            const phone = document.getElementById('customerPhone').value;
+            const address = document.getElementById('customerAddress').value;
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+            
+            if (!name || !phone || !address || !paymentMethod) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+            
+            // Generate order number
+            const orderNumber = 'MK' + Date.now().toString().slice(-8);
+            document.getElementById('orderNumber').textContent = orderNumber;
+            
+            // Clear cart
+            cart = [];
+            updateCartDisplay();
+            
+            // Show success modal
+            closeCheckout();
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function closeSuccess() {
+            document.getElementById('successModal').classList.add('hidden');
+            
+            // Reset form
+            document.getElementById('customerName').value = '';
+            document.getElementById('customerPhone').value = '';
+            document.getElementById('customerAddress').value = '';
+            document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => radio.checked = false);
+            document.getElementById('bankDetails').classList.add('hidden');
+        }
+
+        // Initialize the page
+        renderProducts();
+        updateCartDisplay();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9875af7d770d8957',t:'MTc1OTI1NTkxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

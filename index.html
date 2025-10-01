@@ -1,40 +1,39 @@
-awd
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nokia - Regency</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
-        body {
-            font-family: 'Kanit', sans-serif;
-        }
-        .cart-badge {
-            animation: bounce 0.3s ease-in-out;
-        }
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-        .admin-tab-btn {
-            color: #6b7280;
-            background-color: transparent;
-        }
-        .admin-tab-btn.active {
-            color: #1f2937;
-            background-color: white;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-        .admin-tab-btn:hover:not(.active) {
-            color: #374151;
-            background-color: #f9fafb;
-        }
-    </style>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    body {
+        box-sizing: border-box;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+    body {
+        font-family: 'Kanit', sans-serif;
+    }
+    .cart-badge {
+        animation: bounce 0.3s ease-in-out;
+    }
+    @keyframes bounce {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+    }
+    .admin-tab-btn {
+        color: #6b7280;
+        background-color: transparent;
+    }
+    .admin-tab-btn.active {
+        color: #1f2937;
+        background-color: white;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+    .admin-tab-btn:hover:not(.active) {
+        color: #374151;
+        background-color: #f9fafb;
+    }
+</style>
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
@@ -46,9 +45,7 @@ awd
                     <span class="text-blue-200">ร้านค้าออนไลน์</span>
                     <div class="hidden md:flex items-center bg-blue-700 rounded-lg px-4 py-2">
                         <input type="text" id="searchInput" placeholder="ค้นหาสินค้า..." class="bg-transparent text-white placeholder-blue-200 border-none outline-none w-64" onkeyup="searchProducts(event)">
-                        <button onclick="performSearch()" class="text-blue-200 hover:text-white ml-2">
-                            🔍
-                        </button>
+                        <button onclick="performSearch()" class="text-blue-200 hover:text-white ml-2">🔍</button>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -60,13 +57,16 @@ awd
                                 <span id="ordersBadge" class="bg-red-500 text-white rounded-full px-2 py-1 text-sm font-bold hidden">0</span>
                             </span>
                         </button>
-                        <button onclick="showAdmin()" class="relative bg-purple-700 hover:bg-purple-800 px-4 py-2 rounded-lg transition-colors duration-200">
+
+                        <!-- ปุ่มแอดมิน จะแสดงเฉพาะอีเมล besurfeited1@gmail.com -->
+                        <button data-admin onclick="showAdmin()" class="relative bg-purple-700 hover:bg-purple-800 px-4 py-2 rounded-lg transition-colors duration-200 hidden">
                             <span class="flex items-center space-x-2">
                                 <span>👨‍💼</span>
                                 <span>แอดมิน</span>
                                 <span id="adminBadge" class="bg-orange-500 text-white rounded-full px-2 py-1 text-sm font-bold hidden">0</span>
                             </span>
                         </button>
+
                         <button onclick="toggleCart()" class="relative bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition-colors duration-200">
                             <span class="flex items-center space-x-2">
                                 <span>🛍️</span>
@@ -93,6 +93,28 @@ awd
             </div>
         </div>
     </header>
+
+    <script>
+        // ฟังก์ชันแสดง UI เมื่อผู้ใช้ล็อกอิน
+        function showUserUI(email) {
+            document.getElementById("guestSection").classList.add("hidden");
+            document.getElementById("userSection").classList.remove("hidden");
+
+            // ซ่อนปุ่มแอดมินก่อน
+            const adminBtn = document.querySelector("[data-admin]");
+            adminBtn.classList.add("hidden");
+
+            // เช็คอีเมลว่าตรงกับที่กำหนดหรือไม่
+            if (email === "besurfeited1@gmail.com") {
+                adminBtn.classList.remove("hidden");
+            }
+        }
+
+        // ตัวอย่าง: จำลองล็อกอิน
+        // showUserUI("besurfeited1@gmail.com"); // จะเห็นปุ่มแอดมิน
+        // showUserUI("user@test.com"); // จะไม่เห็นปุ่มแอดมิน
+    </script>
+
 
     <div class="container mx-auto px-4 py-6">
         <div class="grid lg:grid-cols-4 gap-6">
@@ -1553,5 +1575,3 @@ awd
     </script>
 <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987611f543de8957',t:'MTc1OTI1OTk0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
-
